@@ -1,0 +1,281 @@
+LSW3
+undo info-center enable
+vlan batch 10 20 30 40 50 100 200
+int e0/0/3
+port link-type access
+port default VLAN 10
+int e0/0/1
+port link-type trunk 
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int e0/0/2
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+
+LSW4
+undo info-center enable
+vlan batch 10 20 30 40 50 100 200
+int e0/0/3
+port link-type access
+port default vlan 20
+int e0/0/1
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int e0/0/2
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+
+LSW5
+undo info-center enable
+vlan batch 10 20 30 40 50 100 200
+int e0/0/3
+port link-type access
+port default vlan 30
+int e0/0/1
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int e0/0/2
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+
+LSW6
+undo info-center enable
+vlan batch 10 20 30 40 50 100 200
+int e0/0/3
+port link-type access
+port default vlan 40
+int e0/0/1
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int e0/0/2
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+
+LSW7
+undo info-center enable
+vlan batch 10 20 30 40 50 100 200
+int e0/0/3
+port link-type access
+port default vlan 50
+int e0/0/2
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int e0/0/1
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50  100 200
+
+LSW1-master
+undo info-center enable
+vlan batch 10 20 30 40 50 100 200
+int g0/0/4
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int g0/0/5
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int g0/0/6
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int g0/0/7
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int g0/0/8
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int g0/0/1
+port link-type access
+port default vlan 100
+
+LSW2-backup
+undo info-center enable
+vlan batch 10 20 30 40 50 100 200
+int g0/0/4
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int g0/0/5
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int g0/0/6
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int g0/0/7
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int g0/0/8
+port link-type trunk
+port trunk allow-pass vlan 10 20 30 40 50 100 200
+int g0/0/1
+port link-type access
+port default vlan 200
+
+链路聚合：
+
+LSW1-master:
+int Eth-Trunk 1
+trunkport g0/0/2
+trunkport g0/0/3
+port link-type trunk
+port trunk allow-pass vlan all
+
+LSW2-backup:
+int Eth-Trunk 1
+trunkport g0/0/2
+trunkport g0/0/3
+port link-type trunk
+port trunk allow-pass vlan all
+
+VRRP配置：
+LSW1-master：主
+vlan batch 10 20 30 40 50 100 200
+int vlan 10
+ip add 192.168.10.252 24
+vrrp vrid 1 virtual-ip 192.168.10.254
+vrrp vrid 1 priority 120
+vrrp vrid 1 preempt-mode timer delay 5
+int vlan 20
+ip add 192.168.20.252 24
+vrrp vrid 1 virtual-ip 192.168.20.254
+vrrp vrid 1 priority 120
+int vlan 30
+ip add 192.168.30.252 255.255.255.0
+vrrp vrid 1 virtual-ip 192.168.30.254
+vrrp vrid 1 priority 120
+int vlan 40
+ip add 192.168.40.252 24
+vrrp vrid 1 virtual-ip 192.168.40.254
+vrrp vrid 1 priority 120
+int vlan 50
+ip add 192.168.50.252 24
+vrrp vrid 1 virtual-ip 192.168.50.254
+vrrp vrid 1 priority 120
+int vlan 100
+ip add 10.1.11.12 24
+
+LSW2-backup:
+vlan batch 10 20 30 40 50 100 200
+int vlan 10
+ip add 192.168.10.253 24
+vrrp vrid 1 virtual-ip 192.168.10.254
+vrrp vrid 1 priority 110
+int vlan 20
+ip add 192.168.20.253 24
+vrrp vrid 1 virtual-ip 192.168.20.254
+vrrp vrid 1 priority 110
+int vlan 30
+ip add 192.168.30.253 24
+vrrp vrid 1 virtual-ip 192.168.30.254
+vrrp vrid 1 priority 110
+int vlan 40
+ip add 192.168.40.253 24
+vrrp vrid 1 virtual-ip 192.168.40.254
+vrrp vrid 1 priority 110
+int vlan 50
+ip add 192.168.50.253 24
+vrrp vrid 1 virtual-ip 192.168.50.254
+vrrp vrid 1 priority 110
+int vlan 200
+ip add 10.1.12.21 24
+
+OSPF配置：
+LSW1-master:
+ospf 1
+area 2
+network 10.1.11.0 0.0.0.255
+network 10.1.12.0 0.0.0.255
+network 192.168.10.0 0.0.0.255
+network 192.168.20.0 0.0.0.255
+network 192.168.30.0 0.0.0.255
+network 192.168.40.0 0.0.0.255
+network 192.168.50.0 0.0.0.255
+
+LSW2-backup:
+ospf 1
+area 2
+network 10.1.11.0 0.0.0.255
+network 10.1.12.0 0.0.0.255
+network 192.168.10.0 0.0.0.255
+network 192.168.20.0 0.0.0.255
+network 192.168.30.0 0.0.0.255
+network 192.168.40.0 0.0.0.255
+network 192.168.50.0 0.0.0.255
+
+创建地址池:
+LSW1:
+ip pool vlan10
+gateway-list 192.168.10.254
+network 192.168.10.0 mask 255.255.255.0
+excluded-ip-address 192.168.10.252 192.168.10.253
+dns-list 8.8.8.8
+ip pool vlan20
+gateway-list 192.168.20.254
+network 192.168.20.0 mask 255.255.255.0
+excluded-ip-address 192.168.20.252 192.168.20.253
+dns-list 8.8.8.8
+ip pool vlan30
+gateway-list 192.168.30.254
+network 192.168.30.0 mask 255.255.255.0
+excluded-ip-address 192.168.30.252 192.168.30.253
+dns-list 8.8.8.8
+ip pool vlan40
+gateway-list 192.168.40.254
+network 192.168.40.0 mask 255.255.255.0
+excluded-ip-address 192.168.40.252 192.168.40.253
+dns-list 8.8.8.8
+ip pool vlan50
+gateway-list 192.168.50.254
+network 192.168.50.0 mask 255.255.255.0
+excluded-ip-address 192.168.50.252 192.168.50.253
+dns-list 8.8.8.8
+
+LSW2:
+ip pool vlan10
+gateway-list 192.168.10.254
+network 192.168.10.0 mask 255.255.255.0
+excluded-ip-address 192.168.10.252 192.168.10.253
+dns-list 8.8.8.8
+ip pool vlan20
+gateway-list 192.168.20.254
+network 192.168.20.0 mask 255.255.255.0
+excluded-ip-address 192.168.20.252 192.168.20.253
+dns-list 8.8.8.8
+ip pool vlan30
+gateway-list 192.168.30.254
+network 192.168.30.0 mask 255.255.255.0
+excluded-ip-address 192.168.30.252 192.168.30.253
+dns-list 8.8.8.8
+ip pool vlan40
+gateway-list 192.168.40.254
+network 192.168.40.0 mask 255.255.255.0
+excluded-ip-address 192.168.40.252 192.168.40.253
+dns-list 8.8.8.8
+ip pool vlan50
+gateway-list 192.168.50.254
+network 192.168.50.0 mask 255.255.255.0
+excluded-ip-address 192.168.50.252 192.168.50.253
+dns-list 8.8.8.8
+
+VLAN使用地址池:
+LSW1:
+dhcp enable
+int vlan 10
+dhcp select global
+int vlan 20
+dhcp select global
+int vlan 30
+dhcp select global
+int vlan 40
+dhcp select global
+int vlan 50
+dhcp select global
+
+LSW2:
+dhcp enable
+int vlan 10
+dhcp select global
+int vlan 20
+dhcp select global
+int vlan 30
+dhcp select global
+int vlan 40
+dhcp select global
+int vlan 50
+dhcp select global
