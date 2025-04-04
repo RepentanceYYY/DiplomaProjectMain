@@ -279,3 +279,134 @@ int vlan 40
 dhcp select global
 int vlan 50
 dhcp select global
+
+防火墙安全区域划分配置:
+
+FW1:
+interface Eth-Trunk 1
+firewall zone trust
+add int g1/0/0
+firewall zone untrust
+add int g1/0/2
+firewall zone dmz
+add interface Eth-Trunk 1
+
+FW2:
+interface Eth-Trunk 1
+firewall zone trust
+add int g1/0/0
+firewall zone untrust
+add int g1/0/2
+firewall zone dmz
+add interface Eth-Trunk 1
+
+
+防火墙lbk口配置:
+
+FW1:
+interface LoopBack 1
+ip address 1.1.1.1 255.255.255.255
+
+FW2:
+interface LoopBack 1
+ip address 2.2.2.2 255.255.255.255
+
+防火墙ospf配置:
+
+FW1:
+ospf 1 router-id 1.1.1.1
+area 0
+network 1.1.1.1 0.0.0.0
+network 192.168.81.0 0.0.0.255
+network 192.16.1.0 0.0.0.255
+area 2
+network 10.1.11.11 0.0.0.255
+
+FW2:
+ospf 1 router-id 2.2.2.2
+area 0
+network 2.2.2.2 0.0.0.0
+network 192.168.82.0 0.0.0.255
+network 192.16.1.0 0.0.0.255
+area 2
+network 10.1.12.22 0.0.0.255
+
+防火墙hrp配置:
+
+FW1:
+int e1
+ip add 172.16.1.1 24
+service-manage ping permit
+int g1/0/1
+eth-trunk 1
+hrp interface Eth-Trunk 1 remote 172.16.1.2
+hrp track interface g1/0/2
+hrp track interface g1/0/0
+hrp mirror session enable
+hrp enable
+
+FW2:
+int Eth-Trunk 1
+ip add 172.16.1.2 24
+service-manage ping permit
+int g1/0/1
+eth-trunk 1
+hrp standby-device
+hrp interface Eth-Trunk 1 remote 172.16.1.1
+hrp mirror session enable
+hrp standby config enable
+hrp track interface g1/0/0
+hrp track interface g1/0/2
+hrp enable
+
+防火墙配置安全策略:
+FW2:
+hrp enable
+
+FW1:
+hrp enable
+
+FW1:
+允许ping:
+int g1/0/0
+service-manage ping permit
+
+配置安全策略:
+security-policy
+
+default action permit
+
+rule name PC_Per
+source-zone trust
+source-zone untrust
+destination-zone trust
+destination-zone untrust
+source-address 10.1.0.0 mask 255.255.0.0
+source-address 192.168.0.0 mask 255.255.0.0
+destination-address 10.1.0.0 mask 255.255.0.0
+destination-address 192.168.0.0 mask 255.255.0.0
+service esp
+service icmp
+action permit
+
+rule name Permit_Local_Ping
+  source-zone trust
+  destination-zone local
+  service icmp
+  action permit
+
+AR路由器配置
+
+AR1:
+ospf 1
+area 0
+network 192.168.81.0 0.0.0.255
+network 201.1.1.1 0.0.0.255
+network 192.168.83.1 0.0.0.255
+
+AR2:
+ospf 1
+area 0
+network 192.168.82.0 0.0.0.255
+network 202.1.1.0 0.0.0.255
+network 192.168.83.0 0.0.0.255
